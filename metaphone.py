@@ -9,6 +9,15 @@
 # Updated Dec 17, 2007 - Bugs fixed in 'S', 'Z', and 'J' sections. Thanks Chris Leong!
 # Updated 2009-03-05 by Matthew Somerville - Various bug fixes against the reference C++ implementation.
 
+"""
+>>> dm(u'aubrey')
+('APR', '')
+>>> dm(u'richard')
+('RXRT', 'RKRT')
+>>> dm(u'katherine') == dm(u'catherine')
+True
+"""
+
 import unicodedata
 
 def dm(st) :
@@ -422,9 +431,5 @@ def dm(st) :
 		return (pri, sec)
 
 if __name__ == '__main__' :
-	names = {'maurice':'MRS','aubrey':'APR','cambrillo':'KMPR','heidi':'HT','katherine':'K0RN,KTRN',\
-		     'catherine':'K0RN,KTRN','richard':'RXRT,RKRT','bob':'PP','eric':'ARK','geoff':'JF,KF',\
-			 'dave':'TF','ray':'R','steven':'STFN','bryce':'PRS','randy':'RNT','bryan':'PRN',\
-			 'brian':'PRN','otto':'AT','auto':'AT', 'maisey':'MS, None', 'zhang':'JNK, None', 'solilijs':'SLLS, None'}
-	for name in names.keys() :
-		print name + '\t-->\t' + str(dm(name)) + '\t(' +names[name] + ')'
+    import doctest
+    doctest.testmod()
