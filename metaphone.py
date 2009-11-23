@@ -1,12 +1,14 @@
 #!python
 #coding= latin-1
-# This script implements the Double Metaphone algorythm (c) 1998, 1999 by Lawrence Philips
+# This script implements the Double Metaphone algorithm (c) 1998, 1999 by Lawrence Philips
 # it was translated to Python from the C source written by Kevin Atkinson (http://aspell.net/metaphone/)
 # By Andrew Collins - January 12, 2007 who claims no rights to this work
-# http://atomboy.isa-geek.com:8080/plone/Members/acoil/programing/double-metaphone
-# Tested with Pyhon 2.4.3
+# http://atomboy.isa-geek.com/plone/Members/acoil/programing/double-metaphone
+# Tested with Python 2.4.3
 # Updated Feb 14, 2007 - Found a typo in the 'gh' section
 # Updated Dec 17, 2007 - Bugs fixed in 'S', 'Z', and 'J' sections. Thanks Chris Leong!
+# Updated 2009-03-05 by Matthew Somerville - Various bug fixes against the reference C++ implementation.
+
 def dm(st) :
 	"""dm(string) -> (string, string or None)
 	returns the double metaphone codes for given string - always a tuple
@@ -49,8 +51,8 @@ def dm(st) :
 				nxt = ('P', 1)
 		elif ch == 'C' :
 			# various germanic
-			if (pos > first and st[pos-2] in vowels and st[pos-1:pos+1] == 'ACH' and \
-			   (st[pos+2] not in ['I', 'E'] or st[pos-2:pos+4] in ['BACHER', 'MACHER'])) :
+			if pos > first+1 and st[pos-2] not in vowels and st[pos-1:pos+2] == 'ACH' and \
+			   st[pos+2] not in ['I'] and (st[pos+2] not in ['E'] or st[pos-2:pos+4] in ['BACHER', 'MACHER']) :
 				nxt = ('K', 2)
 			# special case 'CAESAR'
 			elif pos == first and st[first:first+6] == 'CAESAR' :
@@ -70,9 +72,9 @@ def dm(st) :
 				   or st[pos+2] in ['T', 'S'] \
 				   or ((st[pos-1] in ["A", "O", "U", "E"] or pos == first) \
 				   and st[pos+2] in ["L", "R", "N", "M", "B", "H", "F", "V", "W"]) :
-					nxt = ('K', 1)
+					nxt = ('K', 2)
 				else :
-					if pos == first :
+					if pos > first :
 						if st[first:first+2] == 'MC' :
 							nxt = ('K', 2)
 						else :
@@ -99,7 +101,7 @@ def dm(st) :
 				else :
 					nxt = ('K', 2)
 			elif st[pos:pos+2] in ["CK", "CG", "CQ"] :
-				nxt = ('K', 'K', 2)
+				nxt = ('K', 2)
 			elif st[pos:pos+2] in ["CI", "CE", "CY"] :
 				#italian vs. english
 				if st[pos:pos+3] in ["CIO", "CIE", "CIA"] :
@@ -172,7 +174,7 @@ def dm(st) :
 			   or st[pos+1:pos+3] in ["ES", "EP", "EB", "EL", "EY", "IB", "IL", "IN", "IE", "EI", "ER"]) :
 				nxt = ('K', 'J', 2)
 			# -ger-,  -gy-
-			elif (st[pos+1:pos+2] == 'ER' or st[pos+1] == 'Y') \
+			elif (st[pos+1:pos+3] == 'ER' or st[pos+1] == 'Y') \
 			   and st[first:first+6] not in ["DANGER", "RANGER", "MANGER"] \
 			   and st[pos-1] not in ['E', 'I'] and st[pos-1:pos+2] not in ['RGY', 'OGY'] :
 				nxt = ('K', 'J', 2)
@@ -234,7 +236,7 @@ def dm(st) :
 			if st[pos+1] == 'L' :
 				# spanish e.g. 'cabrillo', 'gallegos'
 				if (pos == (last - 2) and st[pos-1:pos+3] in ["ILLO", "ILLA", "ALLE"]) \
-				   or (st[last-1:last+1] in ["AS", "OS"] or st[last] in ["A", "O"] \
+				   or ((st[last-1:last+1] in ["AS", "OS"] or st[last] in ["A", "O"]) \
 				   and st[pos-1:pos+3] == 'ALLE') :
 					nxt = ('L', ' ', 2)
 				else :
@@ -242,8 +244,8 @@ def dm(st) :
 			else :
 				nxt = ('L', 1)
 		elif ch == 'M' :
-			if st[pos+1:pos+4] == 'UMB' \
-			   and (pos + 1 == last or st[pos+2:pos+4] == 'ER') \
+			if (st[pos+1:pos+4] == 'UMB' \
+			   and (pos + 1 == last or st[pos+2:pos+4] == 'ER')) \
 			   or st[pos+1] == 'M' :
 				nxt = ('M', 2)
 			else :
@@ -305,7 +307,7 @@ def dm(st) :
 					nxt = nxt + (2,)
 				else :
 					nxt = nxt + (1,)
-			elif st[pos+2:pos+4] == 'SC' :
+			elif st[pos:pos+2] == 'SC' :
 				# Schlesinger's rule
 				if st[pos+2] == 'H' :
 					# dutch origin, e.g. 'school', 'schooner'
@@ -358,7 +360,7 @@ def dm(st) :
 			# can also be in middle of word
 			if st[pos:pos+2] == 'WR' :
 				nxt = ('R', 2)
-			elif pos == first and st[pos+1] in vowels or st[pos:pos+2] == 'WH' :
+			elif pos == first and (st[pos+1] in vowels or st[pos:pos+2] == 'WH') :
 				# Wasserman should match Vasserman
 				if st[pos+1] in vowels :
 					nxt = ('A', 'F', 1)
@@ -366,7 +368,7 @@ def dm(st) :
 					nxt = ('A', 1)
 			# Arnow should match Arnoff
 			elif (pos == last and st[pos-1] in vowels) \
-			   or st[pos-1:pos+5] in ["EWSKI", "EWSKY", "OWSKI", "OWSKY"] \
+			   or st[pos-1:pos+4] in ["EWSKI", "EWSKY", "OWSKI", "OWSKY"] \
 			   or st[first:first+3] == 'SCH' :
 				nxt = ('', 'F', 1)
 			# polish e.g. 'filipowicz'
@@ -393,7 +395,7 @@ def dm(st) :
 				nxt = ('S', 'TS')
 			else :
 				nxt = ('S',)
-			if st[pos+1] == 'Z' :
+			if st[pos+1] == 'Z' or st[pos+1] == 'H':
 				nxt = nxt + (2,)
 			else :
 				nxt = nxt + (1,)
