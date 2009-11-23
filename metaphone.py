@@ -12,7 +12,7 @@
 import unicodedata
 
 def dm(st) :
-	"""dm(string) -> (string, string or None)
+	"""dm(string) -> (string, string or '')
 	returns the double metaphone codes for given string - always a tuple
 	there are no checks done on the input string, but it should be a single	word or name."""
 	vowels = ['A', 'E', 'I', 'O', 'U', 'Y']
@@ -417,7 +417,7 @@ def dm(st) :
 				sec += nxt[1]
 			pos += nxt[2]
 	if pri == sec :
-		return (pri, None)
+		return (pri, '')
 	else :
 		return (pri, sec)
 
