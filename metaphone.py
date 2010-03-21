@@ -1,5 +1,5 @@
 #!python
-#coding= latin-1
+#coding= utf-8
 # This script implements the Double Metaphone algorithm (c) 1998, 1999 by Lawrence Philips
 # it was translated to Python from the C source written by Kevin Atkinson (http://aspell.net/metaphone/)
 # By Andrew Collins - January 12, 2007 who claims no rights to this work
@@ -128,7 +128,8 @@ def dm(st) :
 						nxt = ('K', 2)
 					else : # default for 'C'
 						nxt = ('K', 1)
-		elif ch == u'Ç' : # will never get here with st.encode('ascii', 'replace') above
+		elif ch == u'\xc7' : # will never get here with st.encode('ascii', 'replace') above
+			# \xc7 is UTF-8 encoding of Ã‡
 			nxt = ('S', 1)
 		elif ch == 'D' :
 			if st[pos:pos+2] == 'DG' :
@@ -266,7 +267,7 @@ def dm(st) :
 				nxt = ('N', 2)
 			else :
 				nxt = ('N', 1)
-		elif ch == u'Ñ' :
+		elif ch == u'\xd1' : # UTF-8 encoding of ï¾„
 			nxt = ('N', 1)
 		elif ch == 'P' :
 			if st[pos+1] == 'H' :
